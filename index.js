@@ -24,10 +24,21 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         await client.connect();
+
         const database = client.db("studyHiveDB");
         const usersCollection = database.collection("users");
 
-       
+        // User related api
+        app.post("/users", async (req, res) => {
+            const user = req.body;
+            const query = { email: user?.email };
+            const isExist = await usersCollection.findOne(query);
+            if (isExist) {
+                return res.send({ message: "user already exists", insertrdId: null })
+            }
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        })
 
 
 
