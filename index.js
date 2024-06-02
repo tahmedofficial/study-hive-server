@@ -27,6 +27,7 @@ async function run() {
 
         const database = client.db("studyHiveDB");
         const usersCollection = database.collection("users");
+        const courseCollection = database.collection("course");
 
         // User related api
         app.post("/users", async (req, res) => {
@@ -40,6 +41,11 @@ async function run() {
             res.send(result);
         })
 
+        // Course related api
+        app.get("/courses", async (req, res) => {
+            const result = await courseCollection.find().toArray();
+            res.send(result);
+        })
 
 
         await client.db("admin").command({ ping: 1 });
