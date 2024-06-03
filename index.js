@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const jwt = require("jsonwebtoken");
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
@@ -78,14 +79,16 @@ async function run() {
         })
 
         // booked related api
+        
+
         app.post("/booked", async (req, res) => {
             const booking = req.body;
-            const query = { studentEmail: booking.studentEmail };
-            const booked = await bookedCollection.find(query).toArray();
-            const isExist = booked.some(booke => booke.sessionId === booking.sessionId);
-            if (isExist) {
-                return res.send({ insertedId: null })
-            }
+            // const query = { studentEmail: booking.studentEmail };
+            // const booked = await bookedCollection.find(query).toArray();
+            // const isExist = booked.some(booke => booke.sessionId === booking.sessionId);
+            // if (isExist) {
+            //     return res.send({ insertedId: null })
+            // }
             const result = await bookedCollection.insertOne(booking);
             res.send(result);
         })
@@ -95,6 +98,20 @@ async function run() {
             const query = { role: "tutor" };
             const result = await usersCollection.find(query).toArray();
             res.send(result);
+        })
+
+        // Stripe payment intent
+        app.post("/create-payment-intent", async (req, res) => {
+            const { price } = req.body;
+            const amount = parseInt(price * 100);
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                payment_method_types: ["card"]
+            })
+            res.send({ clientSecret: paymentIntent.client_secret, })
+
         })
 
 
