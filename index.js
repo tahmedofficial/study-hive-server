@@ -30,7 +30,17 @@ async function run() {
         const courseCollection = database.collection("course");
 
         // User related api
-      
+        app.get("/users/admin/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            let admin = false;
+            if (user) {
+                admin = user?.role === "admin";
+            }
+            res.send({ admin })
+        })
+
 
         app.post("/users", async (req, res) => {
             const user = req.body;
