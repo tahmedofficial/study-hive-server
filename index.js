@@ -28,6 +28,7 @@ async function run() {
         const database = client.db("studyHiveDB");
         const usersCollection = database.collection("users");
         const courseCollection = database.collection("course");
+        const bookedCollection = database.collection("booked");
 
         // User related api
         app.get("/users/admin/:email", async (req, res) => {
@@ -41,6 +42,16 @@ async function run() {
             res.send({ admin })
         })
 
+        app.get("/users/tutor/:email", async (req, res) => {
+            const emial = req.params.email;
+            const query = { email: emial };
+            const user = await usersCollection.findOne(query);
+            let tutor = false;
+            if (user) {
+                tutor = user.role === "tutor";
+            }
+            res.send({ tutor });
+        })
 
         app.post("/users", async (req, res) => {
             const user = req.body;
@@ -63,6 +74,19 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await courseCollection.findOne(query);
+            res.send(result);
+        })
+
+        // booked related api
+        app.post("/booked", async (req, res) => {
+            const booking = req.body;
+            const query = { studentEmail: booking.studentEmail };
+            const booked = await bookedCollection.find(query).toArray();
+            const isExist = booked.some(booke => booke.sessionId === booking.sessionId);
+            if (isExist) {
+                return res.send({ insertedId: null })
+            }
+            const result = await bookedCollection.insertOne(booking);
             res.send(result);
         })
 
