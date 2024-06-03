@@ -30,6 +30,8 @@ async function run() {
         const courseCollection = database.collection("course");
 
         // User related api
+      
+
         app.post("/users", async (req, res) => {
             const user = req.body;
             const query = { email: user?.email };
@@ -51,6 +53,13 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await courseCollection.findOne(query);
+            res.send(result);
+        })
+
+        // Tutor related api
+        app.get("/tutors", async (req, res) => {
+            const query = { role: "tutor" };
+            const result = await usersCollection.find(query).toArray();
             res.send(result);
         })
 
