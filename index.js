@@ -81,9 +81,35 @@ async function run() {
         // booked related api
         app.get("/booked/:email", async (req, res) => {
             const email = req.params.email;
-            const query = { studentEmail: email };
-            const result = await bookedCollection.find(query).toArray();
-            res.send(result);
+            const result = await bookedCollection.aggregate([
+                {
+                    $match: { studentEmail: email }
+                },
+                {
+                    $lookup: {
+                      from: 'course',
+                      let: { sessionId: '$sessionId' },
+                      pipeline: [
+                        {
+                          $match: {
+                            $expr: {
+                              $eq: [{ $toString: '$_id' }, { $toString: '$$sessionId' }]
+                            }
+                          }
+                        }
+                      ],
+                      as: 'sessionInfo'
+                    }
+                  },
+                  {
+                    $unwind: {
+                      path: '$sessionInfo',
+                      preserveNullAndEmptyArrays: true
+                    }
+                  }
+            
+            ]).toArray();
+            res.send([result])
         })
 
         app.post("/booked", async (req, res) => {
