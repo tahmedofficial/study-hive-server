@@ -30,6 +30,7 @@ async function run() {
         const usersCollection = database.collection("users");
         const courseCollection = database.collection("course");
         const bookedCollection = database.collection("booked");
+        const reviewCollection = database.collection("review");
 
         // User related api
         app.get("/users/admin/:email", async (req, res) => {
@@ -87,27 +88,27 @@ async function run() {
                 },
                 {
                     $lookup: {
-                      from: 'course',
-                      let: { sessionId: '$sessionId' },
-                      pipeline: [
-                        {
-                          $match: {
-                            $expr: {
-                              $eq: [{ $toString: '$_id' }, { $toString: '$$sessionId' }]
+                        from: 'course',
+                        let: { sessionId: '$sessionId' },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $eq: [{ $toString: '$_id' }, { $toString: '$$sessionId' }]
+                                    }
+                                }
                             }
-                          }
-                        }
-                      ],
-                      as: 'sessionInfo'
+                        ],
+                        as: 'sessionInfo'
                     }
-                  },
-                  {
+                },
+                {
                     $unwind: {
-                      path: '$sessionInfo',
-                      preserveNullAndEmptyArrays: true
+                        path: '$sessionInfo',
+                        preserveNullAndEmptyArrays: true
                     }
-                  }
-            
+                }
+
             ]).toArray();
             res.send([result])
         })
@@ -121,6 +122,13 @@ async function run() {
             //     return res.send({ insertedId: null })
             // }
             const result = await bookedCollection.insertOne(booking);
+            res.send(result);
+        })
+
+        // Review related api
+        app.post("/review", async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
             res.send(result);
         })
 
