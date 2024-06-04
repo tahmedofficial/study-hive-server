@@ -127,6 +127,13 @@ async function run() {
         })
 
         // Review related api
+        app.get("/review/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { sessionId: id }
+            const result = await reviewCollection.findOne(query);
+            res.send(result);
+        })
+
         app.post("/review", async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
@@ -144,6 +151,13 @@ async function run() {
         app.post("/notes", async (req, res) => {
             const note = req.body;
             const result = await notesCollection.insertOne(note);
+            res.send(result);
+        })
+
+        app.delete("/notes/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await notesCollection.deleteOne(query)
             res.send(result);
         })
 
