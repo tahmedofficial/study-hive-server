@@ -31,6 +31,7 @@ async function run() {
         const courseCollection = database.collection("course");
         const bookedCollection = database.collection("booked");
         const reviewCollection = database.collection("review");
+        const notesCollection = database.collection("notes");
 
         // User related api
         app.get("/users/admin/:email", async (req, res) => {
@@ -129,6 +130,20 @@ async function run() {
         app.post("/review", async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
+            res.send(result);
+        })
+
+        // Notes related api
+        app.get("/notes/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await notesCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        app.post("/notes", async (req, res) => {
+            const note = req.body;
+            const result = await notesCollection.insertOne(note);
             res.send(result);
         })
 
