@@ -79,7 +79,12 @@ async function run() {
         })
 
         // booked related api
-        
+        app.get("/booked/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { studentEmail: email };
+            const result = await bookedCollection.find(query).toArray();
+            res.send(result);
+        })
 
         app.post("/booked", async (req, res) => {
             const booking = req.body;
