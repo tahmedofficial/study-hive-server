@@ -80,6 +80,12 @@ async function run() {
             res.send(result);
         })
 
+        app.post("/courses", async (req, res) => {
+            const session = req.body;
+            const result = await courseCollection.insertOne(session);
+            res.send(result);
+        })
+
         // booked related api
         app.get("/booked/:email", async (req, res) => {
             const email = req.params.email;
@@ -148,9 +154,30 @@ async function run() {
             res.send(result);
         })
 
+        app.get("/myNotes/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await notesCollection.findOne(query);
+            res.send(result);
+        })
+
         app.post("/notes", async (req, res) => {
             const note = req.body;
             const result = await notesCollection.insertOne(note);
+            res.send(result);
+        })
+
+        app.patch("/notes/:id", async (req, res) => {
+            const id = req.params.id;
+            const note = req.body;
+            const query = { _id: new ObjectId(id) };
+            const updateNote = {
+                $set: {
+                    title: note?.title,
+                    description: note?.description
+                }
+            }
+            const result = await notesCollection.updateOne(query, updateNote);
             res.send(result);
         })
 
