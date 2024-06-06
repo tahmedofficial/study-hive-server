@@ -34,6 +34,30 @@ async function run() {
         const notesCollection = database.collection("notes");
 
         // User related api
+        app.get("/users", async (req, res) => {
+            try {
+                const filter = req.query.search;
+                const query = {
+                    $or: [
+                        { name: { $regex: filter, $options: "i" } },
+                        { email: { $regex: filter, $options: "i" } },
+                    ]
+                };
+                const result = await usersCollection.find(query).toArray();
+                res.send(result);
+            }
+            catch {
+                res.send([]);
+            }
+        })
+
+        // app.get("/users/:id", async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: new ObjectId(id) };
+        //     const result = await usersCollection.findOne(query);
+        //     res.send(result);
+        // })
+
         app.get("/users/admin/:email", async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
@@ -64,6 +88,19 @@ async function run() {
                 return res.send({ message: "user already exists", insertrdId: null })
             }
             const result = await usersCollection.insertOne(user);
+            res.send(result);
+        })
+
+        app.patch("/users/:id", async (req, res) => {
+            const id = req.params.id;
+            const { role } = req.body;
+            const query = { _id: new ObjectId(id) };
+            const updateRole = {
+                $set: {
+                    role: role
+                }
+            }
+            const result = await usersCollection.updateOne(query, updateRole);
             res.send(result);
         })
 
