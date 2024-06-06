@@ -105,8 +105,15 @@ async function run() {
         })
 
         // Course related api
+        app.get("/sessions", async (req, res) => {
+            const query = { status: "pending" };
+            const result = await courseCollection.find(query).toArray();
+            res.send(result);
+        })
+
         app.get("/courses", async (req, res) => {
-            const result = await courseCollection.find().toArray();
+            const query = { status: "approved" };
+            const result = await courseCollection.find(query).toArray();
             res.send(result);
         })
 
@@ -121,6 +128,36 @@ async function run() {
             const session = req.body;
             const result = await courseCollection.insertOne(session);
             res.send(result);
+        })
+
+        app.patch("/courses/:id", async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
+
+            if (data.status === "approved") {
+                const query = { _id: new ObjectId(id) };
+                const updateInfo = {
+                    $set: {
+                        status: data.status,
+                        registrationFee: data.registrationFee
+                    }
+                }
+                const result = await courseCollection.updateOne(query, updateInfo);
+                return res.send(result);
+            }
+
+            if (data.status === "rejected") {
+                const query = { _id: new ObjectId(id) };
+                const updateInfo = {
+                    $set: {
+                        status: data.status,
+                        rejectReason: data.rejectReason
+                    }
+                }
+                const result = await courseCollection.updateOne(query, updateInfo);
+                return res.send(result);
+            }
+
         })
 
         // booked related api
