@@ -160,6 +160,34 @@ async function run() {
 
         })
 
+        app.patch("/sessions/:id", async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
+            const query = { _id: new ObjectId(id) };
+            const updateSession = {
+                $set: {
+                    tutorEmail: data.tutorEmail,
+                    title: data.title,
+                    description: data.description,
+                    registrationStartDate: data.registrationStartDate,
+                    registrationEndDate: data.registrationEndDate,
+                    classStartTime: data.classStartTime,
+                    classEndDate: data.classEndDate,
+                    registrationFee: data.registrationFee,
+                    duration: data.duration
+                }
+            }
+            const result = await courseCollection.updateOne(query, updateSession);
+            res.send(result);
+        })
+
+        app.delete("/courses/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await courseCollection.deleteOne(query);
+            res.send(result);
+        })
+
         // booked related api
         app.get("/booked/:email", async (req, res) => {
             const email = req.params.email;
