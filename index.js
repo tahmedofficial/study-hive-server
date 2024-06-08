@@ -32,6 +32,7 @@ async function run() {
         const bookedCollection = database.collection("booked");
         const reviewCollection = database.collection("review");
         const notesCollection = database.collection("notes");
+        const materialsCollection = database.collection("materials");
 
         // User related api
         app.get("/users", async (req, res) => {
@@ -117,6 +118,12 @@ async function run() {
             res.send(result);
         })
 
+        app.get("/rejSessions", async (req, res) => {
+            const query = { status: "rejected" };
+            const result = await courseCollection.find(query).toArray();
+            res.send(result);
+        })
+
         app.get("/courses/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
@@ -173,11 +180,23 @@ async function run() {
                     registrationEndDate: data.registrationEndDate,
                     classStartTime: data.classStartTime,
                     classEndDate: data.classEndDate,
-                    registrationFee: data.registrationFee,
+                    registrationFee: parseInt(data.registrationFee),
                     duration: data.duration
                 }
             }
             const result = await courseCollection.updateOne(query, updateSession);
+            res.send(result);
+        })
+
+        app.patch("/session/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const updateStatus = {
+                $set: {
+                    status: "pending"
+                }
+            }
+            const result = await courseCollection.updateOne(query, updateStatus);
             res.send(result);
         })
 
@@ -287,6 +306,13 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await notesCollection.deleteOne(query)
+            res.send(result);
+        })
+
+        // Materials related api
+        app.post("/materials", async (req, res) => {
+            const data = req.body;
+            const result = await materialsCollection.insertOne(data);
             res.send(result);
         })
 
