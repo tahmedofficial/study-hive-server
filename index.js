@@ -106,20 +106,28 @@ async function run() {
         })
 
         // Course related api
-        app.get("/sessions", async (req, res) => {
-            const query = { status: "pending" };
-            const result = await courseCollection.find(query).toArray();
-            res.send(result);
-        })
-
         app.get("/courses", async (req, res) => {
             const query = { status: "approved" };
             const result = await courseCollection.find(query).toArray();
             res.send(result);
         })
 
-        app.get("/rejSessions", async (req, res) => {
-            const query = { status: "rejected" };
+        app.get("/sessions", async (req, res) => {
+            const query = { status: "pending" };
+            const result = await courseCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        app.get("/sessions/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { status: "approved", tutorEmail: email };
+            const result = await courseCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        app.get("/rejSessions/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { status: "rejected", tutorEmail: email };
             const result = await courseCollection.find(query).toArray();
             res.send(result);
         })
@@ -310,9 +318,38 @@ async function run() {
         })
 
         // Materials related api
+        app.get("/materials/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { tutorEmail: email };
+            const result = await materialsCollection.find(query).toArray();
+            res.send(result);
+        })
+
         app.post("/materials", async (req, res) => {
             const data = req.body;
             const result = await materialsCollection.insertOne(data);
+            res.send(result);
+        })
+
+        app.patch("/materials/:id", async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
+            const query = { _id: new ObjectId(id) };
+            const updateInfo = {
+                $set: {
+                    title: data.title,
+                    image: data.image,
+                    material: data.material
+                }
+            }
+            const result = await materialsCollection.updateOne(query, updateInfo);
+            res.send(result);
+        })
+
+        app.delete("/materials/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await materialsCollection.deleteOne(query);
             res.send(result);
         })
 
