@@ -166,7 +166,8 @@ async function run() {
                 const updateInfo = {
                     $set: {
                         status: data.status,
-                        rejectReason: data.rejectReason
+                        rejectReason: data.rejectReason,
+                        feedback: data.feedback
                     }
                 }
                 const result = await courseCollection.updateOne(query, updateInfo);
@@ -318,9 +319,21 @@ async function run() {
         })
 
         // Materials related api
+        app.get("/materials", async (req, res) => {
+            const result = await materialsCollection.find().toArray();
+            res.send(result);
+        })
+
         app.get("/materials/:email", async (req, res) => {
             const email = req.params.email;
             const query = { tutorEmail: email };
+            const result = await materialsCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        app.get("/material/:sessionId", async (req, res) => {
+            const id = req.params.sessionId;
+            const query = { sessionId: id };
             const result = await materialsCollection.find(query).toArray();
             res.send(result);
         })
