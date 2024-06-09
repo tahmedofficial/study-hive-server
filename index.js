@@ -24,7 +24,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        await client.connect();
+        // await client.connect();
 
         const database = client.db("studyHiveDB");
         const usersCollection = database.collection("users");
@@ -51,13 +51,6 @@ async function run() {
                 res.send([]);
             }
         })
-
-        // app.get("/users/:id", async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: new ObjectId(id) };
-        //     const result = await usersCollection.findOne(query);
-        //     res.send(result);
-        // })
 
         app.get("/users/admin/:email", async (req, res) => {
             const email = req.params.email;
@@ -387,8 +380,7 @@ async function run() {
 
         })
 
-
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // await client.close();
